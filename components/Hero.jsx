@@ -1,72 +1,66 @@
 import Link from 'next/link'
-import { ArrowRight, Leaf, ShieldCheck, Truck, Zap } from 'lucide-react'
+import { ArrowRight, Grid3X3, Leaf, Globe, Heart } from 'lucide-react'
 
 export default function Hero({ config }) {
   return (
-    <div className="relative overflow-hidden bg-heritage-dark text-heritage-light border-b-4 border-heritage-accent">
-      {/* Background decoration */}
-      <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/stardust.png')] opacity-20 mix-blend-overlay" />
-      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[1000px] h-[500px] bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-heritage-accent/30 via-heritage-dark to-transparent opacity-80 pointer-events-none" />
-
-      <div className="relative mx-auto max-w-6xl px-4 py-20 sm:py-28 lg:py-36">
-        <div className="text-center max-w-4xl mx-auto">
-          <div className="inline-flex items-center gap-2 rounded-full border border-heritage-gold/30 bg-heritage-gold/10 px-4 py-1.5 text-xs font-semibold uppercase tracking-widest text-heritage-gold mb-8">
-            <span className="relative flex h-2 w-2">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-heritage-gold opacity-75"></span>
-              <span className="relative inline-flex rounded-full h-2 w-2 bg-heritage-gold"></span>
-            </span>
-            Premium Tamil Apparel
-          </div>
-          
-          <h1 className="text-5xl md:text-6xl lg:text-7xl font-serif font-bold tracking-tight text-white drop-shadow-lg">
-            Wear Your Heritage. <br className="hidden sm:block" />
-            <span className="text-heritage-gold italic font-light">Express Your Soul.</span>
-          </h1>
-          
-          <p className="mt-8 text-lg md:text-xl leading-8 text-heritage-light/80 max-w-2xl mx-auto font-light">
-            {config.store_tagline}. Crafted from premium combed cotton with high-definition spiritual and cultural prints. Discover comfort that speaks your language.
-          </p>
-          
-          <div className="mt-12 flex flex-col sm:flex-row items-center justify-center gap-6">
-            <a 
-              href="#products" 
-              className="group flex w-full sm:w-auto items-center justify-center gap-2 rounded-none border border-heritage-gold bg-heritage-gold px-10 py-4 text-sm font-bold uppercase tracking-wider text-heritage-dark shadow-lg transition-all hover:bg-transparent hover:text-heritage-gold"
-            >
-              Shop Collection <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
-            </a>
-          </div>
+    <div className="bg-[#f9f8f4] text-black border-b border-black/10">
+      <div className="flex flex-col md:flex-row w-full h-[600px] border-b border-black/10">
+        {/* Left Image */}
+        <div className="hidden md:block md:w-1/3 relative">
+          <img src="https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=800" alt="Hero Left" className="w-full h-full object-cover" />
         </div>
+        {/* Middle Content */}
+        <div className="w-full md:w-1/3 bg-[#181818] text-white flex flex-col justify-center items-center text-center p-8 relative">
+          <h1 className="text-3xl lg:text-4xl font-serif font-bold tracking-tight leading-[1.2] mb-2">
+            Wear Your Heritage.
+          </h1>
+          <div className="text-3xl lg:text-4xl font-serif text-[#dcae44] font-medium mb-6">
+            Express Your Soul.
+          </div>
+          <p className="text-sm leading-relaxed text-white/50 max-w-sm mx-auto font-light mb-8">
+            Discover premium apparel, meticulously crafted to honor cultural traditions and celebrate modern identity. Organic fabrics, meaningful designs.
+          </p>
+          <a 
+            href="#products" 
+            className="group inline-flex items-center justify-center gap-2 rounded-sm bg-[#dcae44] px-8 py-3 text-xs font-bold uppercase tracking-widest text-black transition hover:bg-[#c99d36]"
+          >
+            Explore the Collection <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
+          </a>
+        </div>
+        {/* Right Image */}
+        <div className="hidden md:block md:w-1/3 relative bg-stone-200">
+          <img src="https://images.unsplash.com/photo-1618354691373-d851c5c3a990?w=800" alt="Hero Right" className="w-full h-full object-cover" />
+        </div>
+      </div>
 
-        {/* Feature Highlights */}
-        <div className="mt-24 border-t border-white/10 pt-12">
-          <div className="grid grid-cols-2 gap-8 md:grid-cols-4 text-center">
-            <div className="flex flex-col items-center gap-3">
-              <div className="flex h-14 w-14 items-center justify-center rounded-full bg-heritage-light/5 text-heritage-gold ring-1 ring-heritage-gold/30">
-                <Leaf className="h-6 w-6" />
-              </div>
-              <h3 className="text-sm font-semibold tracking-wide text-white uppercase">100% Premium Cotton</h3>
-              <p className="text-xs text-heritage-light/60">Breathable & bio-washed</p>
+      {/* Feature Highlights */}
+      <div className="py-16">
+        <div className="mx-auto max-w-5xl grid grid-cols-1 sm:grid-cols-3 gap-6 px-4">
+          <div className="flex flex-col items-center gap-4 bg-[#fdfbf6] border border-[#d4af37]/30 p-8 rounded-md text-center shadow-sm">
+            <div className="flex h-12 w-12 items-center justify-center text-[#d4af37]">
+              <Grid3X3 className="h-10 w-10" strokeWidth={1} />
             </div>
-            <div className="flex flex-col items-center gap-3">
-              <div className="flex h-14 w-14 items-center justify-center rounded-full bg-heritage-light/5 text-heritage-gold ring-1 ring-heritage-gold/30">
-                <ShieldCheck className="h-6 w-6" />
-              </div>
-              <h3 className="text-sm font-semibold tracking-wide text-white uppercase">HD Quality Prints</h3>
-              <p className="text-xs text-heritage-light/60">Fade & crack resistant</p>
+            <div>
+              <h3 className="text-xs font-bold tracking-widest text-black uppercase mb-2">HERITAGE CRAFT</h3>
+              <p className="text-xs text-black/60 leading-relaxed max-w-[200px] mx-auto">Traditional weaving met with modern cuts.</p>
             </div>
-            <div className="flex flex-col items-center gap-3">
-              <div className="flex h-14 w-14 items-center justify-center rounded-full bg-heritage-light/5 text-heritage-gold ring-1 ring-heritage-gold/30">
-                <Zap className="h-6 w-6" />
-              </div>
-              <h3 className="text-sm font-semibold tracking-wide text-white uppercase">Direct Checkout</h3>
-              <p className="text-xs text-heritage-light/60">1-click order checkout</p>
+          </div>
+          <div className="flex flex-col items-center gap-4 bg-[#fdfbf6] border border-[#d4af37]/30 p-8 rounded-md text-center shadow-sm">
+            <div className="flex h-12 w-12 items-center justify-center text-[#d4af37]">
+              <Leaf className="h-10 w-10" strokeWidth={1} />
             </div>
-            <div className="flex flex-col items-center gap-3">
-              <div className="flex h-14 w-14 items-center justify-center rounded-full bg-heritage-light/5 text-heritage-gold ring-1 ring-heritage-gold/30">
-                <Truck className="h-6 w-6" />
-              </div>
-              <h3 className="text-sm font-semibold tracking-wide text-white uppercase">Pan-India Delivery</h3>
-              <p className="text-xs text-heritage-light/60">Fast & secure dispatch</p>
+            <div>
+              <h3 className="text-xs font-bold tracking-widest text-black uppercase mb-2">ETHICAL & SUSTAINABLE</h3>
+              <p className="text-xs text-black/60 leading-relaxed max-w-[200px] mx-auto">Organic, certified materials.</p>
+            </div>
+          </div>
+          <div className="flex flex-col items-center gap-4 bg-[#fdfbf6] border border-[#d4af37]/30 p-8 rounded-md text-center shadow-sm">
+            <div className="flex h-12 w-12 items-center justify-center text-[#d4af37]">
+              <Globe className="h-10 w-10" strokeWidth={1} />
+            </div>
+            <div>
+              <h3 className="text-xs font-bold tracking-widest text-black uppercase mb-2">GLOBAL COMMUNITY</h3>
+              <p className="text-xs text-black/60 leading-relaxed max-w-[200px] mx-auto">Supporting artisan communities.</p>
             </div>
           </div>
         </div>

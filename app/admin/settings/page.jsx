@@ -7,6 +7,7 @@ import { revalidateStorefront } from '../actions'
 
 const FIELDS = [
   { key: 'store_name', label: 'Store name', placeholder: 'Nanjai Clothing' },
+  { key: 'store_logo', label: 'Store logo URL', placeholder: 'https://example.com/logo.png', help: 'Optional. Leave blank to display the store name.' },
   { key: 'store_tagline', label: 'Tagline', placeholder: 'Tamil & spiritual printed T-shirts' },
   {
     key: 'whatsapp_number', label: 'Business WhatsApp number', placeholder: '919876543210',
@@ -15,6 +16,11 @@ const FIELDS = [
   },
   { key: 'currency_symbol', label: 'Currency symbol', placeholder: '₹' },
   { key: 'delivery_fee', label: 'Standard delivery fee', placeholder: '50', inputMode: 'decimal', help: 'Use 0 for free delivery.' },
+  { key: 'header_links', label: 'Header Links (JSON format)', placeholder: '[{"label":"New Arrivals","url":"#"}]' },
+  { key: 'footer_about', label: 'Footer About Links (JSON format)', placeholder: '[{"label":"Our Story","url":"#"}]' },
+  { key: 'footer_connect', label: 'Footer Connect Links (JSON format)', placeholder: '[{"label":"Contact","url":"#"}]' },
+  { key: 'footer_support', label: 'Footer Support Links (JSON format)', placeholder: '[{"label":"FAQ","url":"#"}]' },
+  { key: 'footer_copyright', label: 'Footer Copyright Text', placeholder: '© Norrai Clothing. All rights reserved.' },
 ]
 
 export default function SettingsPage() {
