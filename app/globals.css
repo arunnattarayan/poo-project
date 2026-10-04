@@ -1,0 +1,14 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: var(--font-lato), ui-sans-serif, system-ui, sans-serif;
+  --font-serif: var(--font-playfair), ui-serif, Georgia, serif;
+  --color-heritage-dark: #1f1411;
+  --color-heritage-gold: #d4af37;
+  --color-heritage-light: #fefcf5;
+  --color-heritage-accent: #8b3a3a;
+}
+
+body {
+  @apply bg-heritage-light text-heritage-dark font-sans antialiased;
+}

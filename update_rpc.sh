@@ -1,0 +1,5 @@
+#!/bin/bash
+sed -i '' 's/p_customer_name text,/p_customer_name text,\n  p_customer_phone text,/g' supabase/migrations/20261004160817_initial_schema.sql
+sed -i '' 's/raise exception '"'"'Please enter your name'"'"';/raise exception '"'"'Please enter your name'"'"';\n  end if;\n  if coalesce(trim(p_customer_phone), '"'"''"'"') = '"'"''"'"' then\n    raise exception '"'"'Please enter your phone number'"'"';/g' supabase/migrations/20261004160817_initial_schema.sql
+sed -i '' 's/insert into public.orders (customer_name, address, cart_items, subtotal, delivery_fee, total_amount, status)/insert into public.orders (customer_name, customer_phone, address, cart_items, subtotal, delivery_fee, total_amount, status)/g' supabase/migrations/20261004160817_initial_schema.sql
+sed -i '' 's/values (trim(p_customer_name), trim(p_address), v_items, v_subtotal, v_fee, v_subtotal + v_fee, '"'"'pending'"'"')/values (trim(p_customer_name), trim(p_customer_phone), trim(p_address), v_items, v_subtotal, v_fee, v_subtotal + v_fee, '"'"'pending'"'"')/g' supabase/migrations/20261004160817_initial_schema.sql
