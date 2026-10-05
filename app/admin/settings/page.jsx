@@ -23,7 +23,7 @@ const FIELDS = [
 ]
 
 export default function SettingsPage() {
-  const supabase = createClient()
+  const [supabase] = useState(() => createClient())
   const [config, setConfig] = useState(DEFAULT_CONFIG)
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
@@ -34,7 +34,14 @@ export default function SettingsPage() {
     supabase.from('store_config').select('key, value').then(({ data, error }) => {
       if (cancelled) return
       if (error) setStatus({ type: 'error', message: error.message })
-      else setConfig({ ...DEFAULT_CONFIG, ...Object.fromEntries(data.map((r) => [r.key, r.value])) })
+      else if (data) {
+        const dbConfig = Object.fromEntries(data.map((r) => [r.key, r.value]))
+        const mergedConfig = { ...DEFAULT_CONFIG }
+        for (const [k, v] of Object.entries(dbConfig)) {
+          if (v) mergedConfig[k] = v
+        }
+        setConfig(mergedConfig)
+      }
       setLoading(false)
     })
     return () => { cancelled = true }
@@ -80,11 +87,11 @@ export default function SettingsPage() {
   }
 
   return (
-    <div className="max-w-2xl">
+    <div className="mx-auto max-w-3xl pb-12">
       <h1 className="text-2xl font-semibold">Store settings</h1>
       <p className="mb-6 text-sm text-stone-500">These values are used across the storefront and WhatsApp checkout.</p>
 
-      <form onSubmit={handleSave} className="space-y-5 rounded-xl bg-white p-6 ring-1 ring-stone-200">
+      <form onSubmit={handleSave} className="space-y-5 rounded-xl bg-white p-8 ring-1 ring-stone-200">
         {FIELDS.map(({ key, label, placeholder, help, inputMode }) => (
           <div key={key}>
             <label htmlFor={key} className="mb-1 block text-sm font-medium text-stone-700">{label}</label>

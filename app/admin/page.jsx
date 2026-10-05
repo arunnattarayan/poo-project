@@ -14,7 +14,7 @@ const STATUS_STYLES = {
 }
 
 export default function AdminDashboard() {
-  const supabase = createClient()
+  const [supabase] = useState(() => createClient())
   const [orders, setOrders] = useState([])
   const [currency, setCurrency] = useState(DEFAULT_CONFIG.currency_symbol)
   const [loading, setLoading] = useState(true)

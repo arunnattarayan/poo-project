@@ -7,7 +7,7 @@ import DraggableList from '@/components/DraggableList'
 import ActivePaymentProviders from '@/components/ActivePaymentProviders'
 
 export default function LayoutSettings() {
-  const supabase = createClient()
+  const [supabase] = useState(() => createClient())
   const [config, setConfig] = useState(null)
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
@@ -20,16 +20,17 @@ export default function LayoutSettings() {
       if (error && error.code !== 'PGRST116') {
         setStatus({ type: 'error', message: error.message })
       } else {
-        setConfig(data || {
-          social_urls: { facebook: '', twitter: '', instagram: '', pinterest: '' },
-          show_floating_social_bar: true,
-          show_footer_social_icons: true,
-          newsletter_header: 'JOIN OUR COMMUNITY',
-          newsletter_subheader: 'Get early access to our collections.',
-          payment_providers: ['visa', 'mastercard', 'amex', 'paypal'],
-          footer_about_links: [{label:"Our Story",url:"#"},{label:"Ethical Practices",url:"#"}],
-          footer_contact_links: [{label:"Contact",url:"#"},{label:"Press",url:"#"},{label:"Wholesale",url:"#"}],
-          footer_support_links: [{label:"Size Guide",url:"#"},{label:"Shipping & Returns",url:"#"},{label:"FAQ",url:"#"}]
+        setConfig({
+          id: data?.id,
+          social_urls: data?.social_urls || { facebook: '', twitter: '', instagram: '', pinterest: '' },
+          show_floating_social_bar: data?.show_floating_social_bar ?? true,
+          show_footer_social_icons: data?.show_footer_social_icons ?? true,
+          newsletter_header: data?.newsletter_header || 'JOIN OUR COMMUNITY',
+          newsletter_subheader: data?.newsletter_subheader || 'Get early access to our collections.',
+          payment_providers: data?.payment_providers || ['visa', 'mastercard', 'amex', 'paypal'],
+          footer_about_links: data?.footer_about_links || [{label:"Our Story",url:"#"},{label:"Ethical Practices",url:"#"}],
+          footer_contact_links: data?.footer_contact_links || [{label:"Contact",url:"#"},{label:"Press",url:"#"},{label:"Wholesale",url:"#"}],
+          footer_support_links: data?.footer_support_links || [{label:"Size Guide",url:"#"},{label:"Shipping & Returns",url:"#"},{label:"FAQ",url:"#"}]
         })
       }
       setLoading(false)
@@ -67,11 +68,11 @@ export default function LayoutSettings() {
   if (!config) return null
 
   return (
-    <div className="mt-12 max-w-2xl">
+    <div className="mt-12">
       <h2 className="text-2xl font-semibold">Layout & Footer Settings</h2>
       <p className="mb-6 text-sm text-stone-500">Configure footer links, social media icons, and active payment providers.</p>
 
-      <form onSubmit={handleSave} className="space-y-6 rounded-xl bg-white p-6 ring-1 ring-stone-200">
+      <form onSubmit={handleSave} className="space-y-6 rounded-xl bg-white p-8 ring-1 ring-stone-200">
         
         {/* Newsletter */}
         <div>

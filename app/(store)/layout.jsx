@@ -125,10 +125,6 @@ export default async function StoreLayout({ children }) {
               )}
               <p className="text-black/60">{config.footer_copyright || `${config.store_name} Clothing. All rights reserved.`}</p>
             </div>
-            <div className="flex gap-4 mt-4 md:mt-0 text-black/60 font-medium">
-              <button className="flex items-center gap-1 hover:text-[#d4af37]">SDV <span>⌄</span></button>
-              <button className="flex items-center gap-1 hover:text-[#d4af37]">CHF <span>⌄</span></button>
-            </div>
           </div>
         </div>
       </footer>

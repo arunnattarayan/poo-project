@@ -5,7 +5,7 @@ import { createClient } from '@/lib/supabase'
 import { revalidateStorefront } from '../actions'
 
 export default function SocialSettingsPage() {
-  const supabase = createClient()
+  const [supabase] = useState(() => createClient())
   const [config, setConfig] = useState(null)
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)

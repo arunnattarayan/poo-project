@@ -1,6 +1,6 @@
 'use client'
 import { useCallback, useEffect, useState } from 'react'
-import { Plus, Pencil, Trash2, Loader2, AlertCircle, X, ImageOff, PackageOpen } from 'lucide-react'
+import { Plus, Pencil, Trash2, Loader2, AlertCircle, X, ImageOff, PackageOpen, Search, ChevronLeft, ChevronRight } from 'lucide-react'
 import { createClient } from '@/lib/supabase'
 import { formatPrice } from '@/lib/utils'
 import { revalidateStorefront } from '../actions'
@@ -9,20 +9,62 @@ import ImageUploader from '@/components/admin/ImageUploader'
 const EMPTY = { title: '', description: '', price: '', image_url: '', in_stock: true, is_active: true }
 
 export default function ProductsPage() {
-  const supabase = createClient()
+  const [supabase] = useState(() => createClient())
   const [products, setProducts] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
-  const [editing, setEditing] = useState(null) // null | product | EMPTY (new)
+  const [editing, setEditing] = useState(null)
   const [deletingId, setDeletingId] = useState(null)
+
+  // Pagination & Filters
+  const [page, setPage] = useState(1)
+  const pageSize = 12
+  const [totalCount, setTotalCount] = useState(0)
+  
+  const [search, setSearch] = useState('')
+  const [debouncedSearch, setDebouncedSearch] = useState('')
+  const [sortBy, setSortBy] = useState('newest')
+  const [filterStatus, setFilterStatus] = useState('all')
+  const [filterVisibility, setFilterVisibility] = useState('all')
+
+  useEffect(() => {
+    const t = setTimeout(() => {
+      setDebouncedSearch(search)
+      setPage(1)
+    }, 500)
+    return () => clearTimeout(t)
+  }, [search])
 
   const load = useCallback(async () => {
     setLoading(true)
-    const { data, error } = await supabase.from('products').select('*').order('created_at', { ascending: false })
+    let query = supabase.from('products').select('*', { count: 'exact' })
+    
+    if (debouncedSearch) query = query.ilike('title', `%${debouncedSearch}%`)
+    if (filterStatus === 'in_stock') query = query.eq('in_stock', true)
+    if (filterStatus === 'out_of_stock') query = query.eq('in_stock', false)
+    if (filterVisibility === 'visible') query = query.eq('is_active', true)
+    if (filterVisibility === 'hidden') query = query.eq('is_active', false)
+    
+    if (sortBy === 'price_asc') query = query.order('price', { ascending: true })
+    else if (sortBy === 'price_desc') query = query.order('price', { ascending: false })
+    else if (sortBy === 'az') query = query.order('title', { ascending: true })
+    else if (sortBy === 'za') query = query.order('title', { ascending: false })
+    else query = query.order('created_at', { ascending: false })
+    
+    const from = (page - 1) * pageSize
+    const to = from + pageSize - 1
+    query = query.range(from, to)
+
+    const { data, error, count } = await query
+    
     if (error) setError(error.message)
-    else { setProducts(data); setError('') }
+    else { 
+      setProducts(data)
+      setTotalCount(count || 0)
+      setError('') 
+    }
     setLoading(false)
-  }, [supabase])
+  }, [supabase, page, pageSize, debouncedSearch, filterStatus, filterVisibility, sortBy])
 
   useEffect(() => { load() }, [load])
 
@@ -32,7 +74,7 @@ export default function ProductsPage() {
     const { error } = await supabase.from('products').delete().eq('id', product.id)
     if (error) alert(`Delete failed: ${error.message}`)
     else {
-      setProducts((p) => p.filter((x) => x.id !== product.id))
+      load() // reload to fix pagination
       revalidateStorefront()
     }
     setDeletingId(null)
@@ -48,22 +90,56 @@ export default function ProductsPage() {
     } else revalidateStorefront()
   }
 
-  function handleSaved(saved, isNew) {
-    setProducts((p) => (isNew ? [saved, ...p] : p.map((x) => (x.id === saved.id ? saved : x))))
+  function handleSaved() {
+    load() // reload to fix sorting/pagination
     setEditing(null)
     revalidateStorefront()
   }
+
+  const totalPages = Math.ceil(totalCount / pageSize)
 
   return (
     <div>
       <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
         <div>
           <h1 className="text-2xl font-semibold">Products</h1>
-          <p className="text-sm text-stone-500">{products.length} total</p>
+          <p className="text-sm text-stone-500">{totalCount} total</p>
         </div>
         <button onClick={() => setEditing(EMPTY)} className="flex items-center gap-2 rounded-lg bg-stone-900 px-4 py-2 text-sm font-medium text-white hover:bg-stone-700">
           <Plus className="h-4 w-4" /> Add product
         </button>
+      </div>
+
+      <div className="mb-6 flex flex-col gap-4 rounded-xl bg-white p-4 ring-1 ring-stone-200 sm:flex-row sm:items-center">
+        <div className="relative flex-1">
+          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-stone-400" />
+          <input
+            type="text"
+            placeholder="Search products..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="w-full rounded-lg border border-stone-300 py-2 pl-9 pr-3 text-sm outline-none focus:border-stone-900 focus:ring-1 focus:ring-stone-900"
+          />
+        </div>
+        <div className="flex flex-wrap gap-3">
+          <select value={filterStatus} onChange={(e) => { setFilterStatus(e.target.value); setPage(1); }} className="rounded-lg border border-stone-300 px-3 py-2 text-sm outline-none focus:border-stone-900">
+            <option value="all">All stock</option>
+            <option value="in_stock">In stock</option>
+            <option value="out_of_stock">Out of stock</option>
+          </select>
+          <select value={filterVisibility} onChange={(e) => { setFilterVisibility(e.target.value); setPage(1); }} className="rounded-lg border border-stone-300 px-3 py-2 text-sm outline-none focus:border-stone-900">
+            <option value="all">All visibility</option>
+            <option value="visible">Visible</option>
+            <option value="hidden">Hidden</option>
+          </select>
+          <select value={sortBy} onChange={(e) => { setSortBy(e.target.value); setPage(1); }} className="rounded-lg border border-stone-300 px-3 py-2 text-sm outline-none focus:border-stone-900">
+            <option value="newest">Newest Arrivals</option>
+            <option value="price_asc">Price: Low to High</option>
+            <option value="price_desc">Price: High to Low</option>
+            <option value="az">Name: A-Z</option>
+            <option value="za">Name: Z-A</option>
+          </select>
+        </div>
       </div>
 
       {error ? (
@@ -72,32 +148,50 @@ export default function ProductsPage() {
         <div className="flex justify-center py-20"><Loader2 className="h-6 w-6 animate-spin text-stone-400" /></div>
       ) : products.length === 0 ? (
         <div className="flex flex-col items-center rounded-xl bg-white py-16 text-stone-500 ring-1 ring-stone-200">
-          <PackageOpen className="mb-2 h-8 w-8" /> No products yet — add your first one.
+          <PackageOpen className="mb-2 h-8 w-8" /> No products found.
         </div>
       ) : (
-        <div className="overflow-hidden rounded-xl bg-white ring-1 ring-stone-200">
-          <ul className="divide-y divide-stone-100">
+        <>
+          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4">
             {products.map((p) => (
-              <li key={p.id} className="flex flex-wrap items-center gap-4 p-4 sm:flex-nowrap">
-                <Thumb src={p.image_url} alt={p.title} />
-                <div className="min-w-0 flex-1">
-                  <p className="truncate font-medium">{p.title}</p>
-                  <p className="text-sm text-stone-500">{formatPrice(p.price)}</p>
+              <div key={p.id} className="flex flex-col overflow-hidden rounded-xl bg-white ring-1 ring-stone-200">
+                <div className="aspect-[4/5] relative bg-stone-100">
+                  {p.image_url ? (
+                    <img src={p.image_url} alt={p.title} className="h-full w-full object-cover" />
+                  ) : (
+                    <div className="flex h-full w-full items-center justify-center text-stone-400"><ImageOff className="h-8 w-8" /></div>
+                  )}
+                  <div className="absolute top-2 right-2 flex gap-1">
+                    <button onClick={() => setEditing(p)} className="rounded-full bg-white/90 p-1.5 text-stone-700 shadow-sm hover:bg-white hover:text-stone-900"><Pencil className="h-4 w-4" /></button>
+                    <button onClick={() => handleDelete(p)} disabled={deletingId === p.id} className="rounded-full bg-white/90 p-1.5 text-red-600 shadow-sm hover:bg-white hover:text-red-700 disabled:opacity-50">
+                      {deletingId === p.id ? <Loader2 className="h-4 w-4 animate-spin" /> : <Trash2 className="h-4 w-4" />}
+                    </button>
+                  </div>
                 </div>
-                <div className="flex items-center gap-2">
-                  <Toggle on={p.is_active} onClick={() => quickToggle(p, 'is_active')} onLabel="Visible" offLabel="Hidden" />
-                  <Toggle on={p.in_stock} onClick={() => quickToggle(p, 'in_stock')} onLabel="In stock" offLabel="Sold out" />
+                <div className="flex flex-col p-4 flex-1">
+                  <h3 className="font-medium line-clamp-1" title={p.title}>{p.title}</h3>
+                  <p className="mt-1 text-sm text-stone-500">{formatPrice(p.price)}</p>
+                  <div className="mt-auto pt-4 flex flex-wrap gap-2">
+                    <Toggle on={p.is_active} onClick={() => quickToggle(p, 'is_active')} onLabel="Visible" offLabel="Hidden" />
+                    <Toggle on={p.in_stock} onClick={() => quickToggle(p, 'in_stock')} onLabel="In stock" offLabel="Sold out" />
+                  </div>
                 </div>
-                <div className="flex items-center gap-1">
-                  <button onClick={() => setEditing(p)} className="rounded-lg p-2 text-stone-600 hover:bg-stone-100" aria-label="Edit"><Pencil className="h-4 w-4" /></button>
-                  <button onClick={() => handleDelete(p)} disabled={deletingId === p.id} className="rounded-lg p-2 text-red-600 hover:bg-red-50 disabled:opacity-50" aria-label="Delete">
-                    {deletingId === p.id ? <Loader2 className="h-4 w-4 animate-spin" /> : <Trash2 className="h-4 w-4" />}
-                  </button>
-                </div>
-              </li>
+              </div>
             ))}
-          </ul>
-        </div>
+          </div>
+
+          {totalPages > 1 && (
+            <div className="mt-8 flex items-center justify-center gap-2">
+              <button onClick={() => setPage(p => Math.max(1, p - 1))} disabled={page <= 1} className="flex h-10 w-10 items-center justify-center rounded-lg border border-stone-300 text-stone-600 hover:bg-stone-50 disabled:opacity-50 disabled:hover:bg-transparent">
+                <ChevronLeft className="h-5 w-5" />
+              </button>
+              <span className="px-4 text-sm font-medium text-stone-600">Page {page} of {totalPages}</span>
+              <button onClick={() => setPage(p => Math.min(totalPages, p + 1))} disabled={page >= totalPages} className="flex h-10 w-10 items-center justify-center rounded-lg border border-stone-300 text-stone-600 hover:bg-stone-50 disabled:opacity-50 disabled:hover:bg-transparent">
+                <ChevronRight className="h-5 w-5" />
+              </button>
+            </div>
+          )}
+        </>
       )}
 
       {editing && <ProductForm initial={editing} onClose={() => setEditing(null)} onSaved={handleSaved} />}
@@ -107,27 +201,15 @@ export default function ProductsPage() {
 
 function Toggle({ on, onClick, onLabel, offLabel }) {
   return (
-    <button onClick={onClick} className={`rounded-full px-2.5 py-1 text-xs font-medium ${on ? 'bg-green-100 text-green-800' : 'bg-stone-200 text-stone-600'}`}>
+    <button onClick={onClick} className={`rounded-full px-2.5 py-1 text-[11px] font-medium uppercase tracking-wider ${on ? 'bg-green-100 text-green-800' : 'bg-stone-200 text-stone-600'}`}>
       {on ? onLabel : offLabel}
     </button>
-  )
-}
-
-function Thumb({ src, alt }) {
-  const [failed, setFailed] = useState(false)
-  return (
-    <div className="flex h-14 w-14 shrink-0 items-center justify-center overflow-hidden rounded-lg bg-stone-100">
-      {src && !failed
-        ? <img src={src} alt={alt} className="h-full w-full object-cover" onError={() => setFailed(true)} />
-        : <ImageOff className="h-5 w-5 text-stone-400" />}
-    </div>
   )
 }
 
 function ProductForm({ initial, onClose, onSaved }) {
   const supabase = createClient()
   const isNew = !initial.id
-  // Migrate old image_url to images array for the form state
   const initialImages = Array.isArray(initial.images) && initial.images.length > 0 
     ? initial.images 
     : (initial.image_url ? [initial.image_url] : [])
@@ -159,6 +241,7 @@ function ProductForm({ initial, onClose, onSaved }) {
       description: form.description?.trim() || null,
       price,
       images: form.images,
+      image_url: form.images?.[0] || '', // Fallback for backward compatibility
       in_stock: form.in_stock,
       is_active: form.is_active,
     }
