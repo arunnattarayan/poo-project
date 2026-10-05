@@ -1,6 +1,6 @@
 'use client'
 import { useCallback, useEffect, useState } from 'react'
-import { Plus, Pencil, Trash2, Loader2, AlertCircle, X, ImageOff, PackageOpen, Search, ChevronLeft, ChevronRight } from 'lucide-react'
+import { Plus, Pencil, Trash2, Loader2, AlertCircle, X, ImageOff, PackageOpen, Search, ChevronLeft, ChevronRight, LayoutGrid, List } from 'lucide-react'
 import { createClient } from '@/lib/supabase'
 import { formatPrice } from '@/lib/utils'
 import { revalidateStorefront } from '../actions'
@@ -15,6 +15,9 @@ export default function ProductsPage() {
   const [error, setError] = useState('')
   const [editing, setEditing] = useState(null)
   const [deletingId, setDeletingId] = useState(null)
+
+  const [viewMode, setViewMode] = useState('grid')
+  const [selectedIds, setSelectedIds] = useState(new Set())
 
   // Pagination & Filters
   const [page, setPage] = useState(1)
@@ -74,7 +77,8 @@ export default function ProductsPage() {
     const { error } = await supabase.from('products').delete().eq('id', product.id)
     if (error) alert(`Delete failed: ${error.message}`)
     else {
-      load() // reload to fix pagination
+      setSelectedIds(new Set())
+      load()
       revalidateStorefront()
     }
     setDeletingId(null)
@@ -90,8 +94,40 @@ export default function ProductsPage() {
     } else revalidateStorefront()
   }
 
+  async function handleBulkDelete() {
+    if (!confirm(`Delete ${selectedIds.size} products? This cannot be undone.`)) return
+    const { error } = await supabase.from('products').delete().in('id', Array.from(selectedIds))
+    if (error) alert(`Delete failed: ${error.message}`)
+    else {
+      setSelectedIds(new Set())
+      load()
+      revalidateStorefront()
+    }
+  }
+
+  async function handleBulkToggle(field, value) {
+    const { error } = await supabase.from('products').update({ [field]: value }).in('id', Array.from(selectedIds))
+    if (error) alert(`Update failed: ${error.message}`)
+    else {
+      load()
+      revalidateStorefront()
+    }
+  }
+
+  const toggleSelection = (id) => {
+    const next = new Set(selectedIds)
+    if (next.has(id)) next.delete(id)
+    else next.add(id)
+    setSelectedIds(next)
+  }
+
+  const toggleAll = () => {
+    if (selectedIds.size === products.length) setSelectedIds(new Set())
+    else setSelectedIds(new Set(products.map(p => p.id)))
+  }
+
   function handleSaved() {
-    load() // reload to fix sorting/pagination
+    load()
     setEditing(null)
     revalidateStorefront()
   }
@@ -105,9 +141,15 @@ export default function ProductsPage() {
           <h1 className="text-2xl font-semibold">Products</h1>
           <p className="text-sm text-stone-500">{totalCount} total</p>
         </div>
-        <button onClick={() => setEditing(EMPTY)} className="flex items-center gap-2 rounded-lg bg-stone-900 px-4 py-2 text-sm font-medium text-white hover:bg-stone-700">
-          <Plus className="h-4 w-4" /> Add product
-        </button>
+        <div className="flex items-center gap-3">
+          <div className="flex rounded-lg border border-stone-300 bg-white p-1">
+            <button onClick={() => setViewMode('grid')} className={`rounded p-1 ${viewMode === 'grid' ? 'bg-stone-100 text-stone-900' : 'text-stone-400 hover:text-stone-600'}`}><LayoutGrid className="h-4 w-4" /></button>
+            <button onClick={() => setViewMode('list')} className={`rounded p-1 ${viewMode === 'list' ? 'bg-stone-100 text-stone-900' : 'text-stone-400 hover:text-stone-600'}`}><List className="h-4 w-4" /></button>
+          </div>
+          <button onClick={() => setEditing(EMPTY)} className="flex items-center gap-2 rounded-lg bg-stone-900 px-4 py-2 text-sm font-medium text-white hover:bg-stone-700">
+            <Plus className="h-4 w-4" /> Add product
+          </button>
+        </div>
       </div>
 
       <div className="mb-6 flex flex-col gap-4 rounded-xl bg-white p-4 ring-1 ring-stone-200 sm:flex-row sm:items-center">
@@ -122,17 +164,17 @@ export default function ProductsPage() {
           />
         </div>
         <div className="flex flex-wrap gap-3">
-          <select value={filterStatus} onChange={(e) => { setFilterStatus(e.target.value); setPage(1); }} className="rounded-lg border border-stone-300 px-3 py-2 text-sm outline-none focus:border-stone-900">
+          <select value={filterStatus} onChange={(e) => { setFilterStatus(e.target.value); setPage(1); }} className="bg-white text-gray-900 rounded-lg border border-stone-300 px-3 py-2 text-sm outline-none focus:border-stone-900">
             <option value="all">All stock</option>
             <option value="in_stock">In stock</option>
             <option value="out_of_stock">Out of stock</option>
           </select>
-          <select value={filterVisibility} onChange={(e) => { setFilterVisibility(e.target.value); setPage(1); }} className="rounded-lg border border-stone-300 px-3 py-2 text-sm outline-none focus:border-stone-900">
+          <select value={filterVisibility} onChange={(e) => { setFilterVisibility(e.target.value); setPage(1); }} className="bg-white text-gray-900 rounded-lg border border-stone-300 px-3 py-2 text-sm outline-none focus:border-stone-900">
             <option value="all">All visibility</option>
             <option value="visible">Visible</option>
             <option value="hidden">Hidden</option>
           </select>
-          <select value={sortBy} onChange={(e) => { setSortBy(e.target.value); setPage(1); }} className="rounded-lg border border-stone-300 px-3 py-2 text-sm outline-none focus:border-stone-900">
+          <select value={sortBy} onChange={(e) => { setSortBy(e.target.value); setPage(1); }} className="bg-white text-gray-900 rounded-lg border border-stone-300 px-3 py-2 text-sm outline-none focus:border-stone-900">
             <option value="newest">Newest Arrivals</option>
             <option value="price_asc">Price: Low to High</option>
             <option value="price_desc">Price: High to Low</option>
@@ -141,6 +183,23 @@ export default function ProductsPage() {
           </select>
         </div>
       </div>
+      
+      {selectedIds.size > 0 && (
+        <div className="mb-6 flex items-center justify-between rounded-xl bg-stone-900 px-4 py-3 text-white shadow-lg">
+          <div className="flex items-center gap-4">
+            <span className="text-sm font-medium">{selectedIds.size} selected</span>
+            <div className="h-4 w-px bg-stone-700" />
+            <button onClick={() => handleBulkToggle('is_active', true)} className="text-sm hover:text-stone-300">Set Visible</button>
+            <button onClick={() => handleBulkToggle('is_active', false)} className="text-sm hover:text-stone-300">Set Hidden</button>
+            <div className="h-4 w-px bg-stone-700" />
+            <button onClick={() => handleBulkToggle('in_stock', true)} className="text-sm hover:text-stone-300">Set In Stock</button>
+            <button onClick={() => handleBulkToggle('in_stock', false)} className="text-sm hover:text-stone-300">Set Out of Stock</button>
+          </div>
+          <button onClick={handleBulkDelete} className="flex items-center gap-2 text-sm text-red-400 hover:text-red-300">
+            <Trash2 className="h-4 w-4" /> Delete
+          </button>
+        </div>
+      )}
 
       {error ? (
         <div className="flex items-center gap-2 rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-700"><AlertCircle className="h-4 w-4" />{error}</div>
@@ -152,33 +211,82 @@ export default function ProductsPage() {
         </div>
       ) : (
         <>
-          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4">
-            {products.map((p) => (
-              <div key={p.id} className="flex flex-col overflow-hidden rounded-xl bg-white ring-1 ring-stone-200">
-                <div className="aspect-[4/5] relative bg-stone-100">
-                  {p.image_url ? (
-                    <img src={p.image_url} alt={p.title} className="h-full w-full object-cover" />
-                  ) : (
-                    <div className="flex h-full w-full items-center justify-center text-stone-400"><ImageOff className="h-8 w-8" /></div>
-                  )}
-                  <div className="absolute top-2 right-2 flex gap-1">
-                    <button onClick={() => setEditing(p)} className="rounded-full bg-white/90 p-1.5 text-stone-700 shadow-sm hover:bg-white hover:text-stone-900"><Pencil className="h-4 w-4" /></button>
-                    <button onClick={() => handleDelete(p)} disabled={deletingId === p.id} className="rounded-full bg-white/90 p-1.5 text-red-600 shadow-sm hover:bg-white hover:text-red-700 disabled:opacity-50">
-                      {deletingId === p.id ? <Loader2 className="h-4 w-4 animate-spin" /> : <Trash2 className="h-4 w-4" />}
-                    </button>
-                  </div>
-                </div>
-                <div className="flex flex-col p-4 flex-1">
-                  <h3 className="font-medium line-clamp-1" title={p.title}>{p.title}</h3>
-                  <p className="mt-1 text-sm text-stone-500">{formatPrice(p.price)}</p>
-                  <div className="mt-auto pt-4 flex flex-wrap gap-2">
-                    <Toggle on={p.is_active} onClick={() => quickToggle(p, 'is_active')} onLabel="Visible" offLabel="Hidden" />
-                    <Toggle on={p.in_stock} onClick={() => quickToggle(p, 'in_stock')} onLabel="In stock" offLabel="Sold out" />
-                  </div>
-                </div>
+          {viewMode === 'list' ? (
+            <div className="overflow-x-auto rounded-xl bg-white ring-1 ring-stone-200">
+              <table className="w-full text-left text-sm text-stone-600">
+                <thead className="bg-stone-50 text-xs uppercase text-stone-700">
+                  <tr>
+                    <th className="px-4 py-3"><input type="checkbox" checked={selectedIds.size === products.length && products.length > 0} onChange={toggleAll} className="h-4 w-4 rounded border-stone-300 cursor-pointer" /></th>
+                    <th className="px-4 py-3">Product</th>
+                    <th className="px-4 py-3">Price</th>
+                    <th className="px-4 py-3">Status</th>
+                    <th className="px-4 py-3 text-right">Actions</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-stone-200">
+                  {products.map((p) => (
+                    <tr key={p.id} className={selectedIds.has(p.id) ? 'bg-stone-50' : 'hover:bg-stone-50/50'}>
+                      <td className="px-4 py-3"><input type="checkbox" checked={selectedIds.has(p.id)} onChange={() => toggleSelection(p.id)} className="h-4 w-4 rounded border-stone-300 cursor-pointer" /></td>
+                      <td className="px-4 py-3 flex items-center gap-3">
+                        <div className="h-10 w-10 shrink-0 rounded bg-stone-100 overflow-hidden">
+                          {p.image_url ? <img src={p.image_url} alt="" className="h-full w-full object-cover" /> : <ImageOff className="h-4 w-4 m-auto mt-3 text-stone-400" />}
+                        </div>
+                        <span className="font-medium text-stone-900">{p.title}</span>
+                      </td>
+                      <td className="px-4 py-3">{formatPrice(p.price)}</td>
+                      <td className="px-4 py-3">
+                        <div className="flex gap-2">
+                          <Toggle on={p.is_active} onClick={() => quickToggle(p, 'is_active')} onLabel="Visible" offLabel="Hidden" />
+                          <Toggle on={p.in_stock} onClick={() => quickToggle(p, 'in_stock')} onLabel="In stock" offLabel="Sold out" />
+                        </div>
+                      </td>
+                      <td className="px-4 py-3 text-right">
+                        <button onClick={() => setEditing(p)} className="p-1 text-stone-500 hover:text-stone-900"><Pencil className="h-4 w-4" /></button>
+                        <button onClick={() => handleDelete(p)} disabled={deletingId === p.id} className="p-1 text-red-500 hover:text-red-700"><Trash2 className="h-4 w-4" /></button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          ) : (
+            <>
+              <div className="mb-4 flex items-center gap-2">
+                <input type="checkbox" checked={selectedIds.size === products.length && products.length > 0} onChange={toggleAll} id="selectAll" className="h-4 w-4 rounded border-stone-300 cursor-pointer" />
+                <label htmlFor="selectAll" className="text-sm text-stone-600 cursor-pointer">Select All</label>
               </div>
-            ))}
-          </div>
+              <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4">
+                {products.map((p) => (
+                  <div key={p.id} className={`flex flex-col overflow-hidden rounded-xl bg-white ring-1 transition ${selectedIds.has(p.id) ? 'ring-stone-900 ring-2' : 'ring-stone-200'}`}>
+                    <div className="aspect-[4/5] relative bg-stone-100 group">
+                      <div className="absolute top-2 left-2 z-10">
+                        <input type="checkbox" checked={selectedIds.has(p.id)} onChange={() => toggleSelection(p.id)} className="h-5 w-5 rounded border-stone-300 cursor-pointer shadow-sm bg-white" />
+                      </div>
+                      {p.image_url ? (
+                        <img src={p.image_url} alt={p.title} className="h-full w-full object-cover" />
+                      ) : (
+                        <div className="flex h-full w-full items-center justify-center text-stone-400"><ImageOff className="h-8 w-8" /></div>
+                      )}
+                      <div className="absolute top-2 right-2 flex gap-1 z-10 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity">
+                        <button onClick={() => setEditing(p)} className="rounded-full bg-white/90 p-1.5 text-stone-700 shadow-sm hover:bg-white hover:text-stone-900"><Pencil className="h-4 w-4" /></button>
+                        <button onClick={() => handleDelete(p)} disabled={deletingId === p.id} className="rounded-full bg-white/90 p-1.5 text-red-600 shadow-sm hover:bg-white hover:text-red-700 disabled:opacity-50">
+                          {deletingId === p.id ? <Loader2 className="h-4 w-4 animate-spin" /> : <Trash2 className="h-4 w-4" />}
+                        </button>
+                      </div>
+                    </div>
+                    <div className="flex flex-col p-4 flex-1">
+                      <h3 className="font-medium line-clamp-1" title={p.title}>{p.title}</h3>
+                      <p className="mt-1 text-sm text-stone-500">{formatPrice(p.price)}</p>
+                      <div className="mt-auto pt-4 flex flex-wrap gap-2">
+                        <Toggle on={p.is_active} onClick={() => quickToggle(p, 'is_active')} onLabel="Visible" offLabel="Hidden" />
+                        <Toggle on={p.in_stock} onClick={() => quickToggle(p, 'in_stock')} onLabel="In stock" offLabel="Sold out" />
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </>
+          )}
 
           {totalPages > 1 && (
             <div className="mt-8 flex items-center justify-center gap-2">
@@ -241,7 +349,7 @@ function ProductForm({ initial, onClose, onSaved }) {
       description: form.description?.trim() || null,
       price,
       images: form.images,
-      image_url: form.images?.[0] || '', // Fallback for backward compatibility
+      image_url: form.images?.[0] || '',
       in_stock: form.in_stock,
       is_active: form.is_active,
     }

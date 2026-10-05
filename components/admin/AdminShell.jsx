@@ -47,7 +47,7 @@ export default function AdminShell({ children }) {
   )
 
   return (
-    <div className="min-h-screen bg-stone-50">
+    <div className="min-h-screen bg-stone-50 text-stone-900">
       <header className="sticky top-0 z-30 border-b border-stone-200 bg-white">
         <div className="mx-auto flex h-14 max-w-6xl items-center justify-between px-4">
           <Link href="/admin" className="font-semibold">Store Admin</Link>
