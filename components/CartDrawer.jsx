@@ -79,10 +79,10 @@ export default function CartDrawer() {
                     </div>
                     <p className="text-sm text-stone-500">{formatPrice(item.price, currency_symbol)}</p>
                     <div className="mt-auto flex items-center justify-between">
-                      <div className="flex items-center rounded-md border border-stone-200">
-                        <button onClick={() => setQuantity(item.id, item.quantity - 1)} className="p-1.5 hover:bg-stone-100" aria-label="Decrease"><Minus className="h-3.5 w-3.5" /></button>
-                        <span className="w-7 text-center text-sm">{item.quantity}</span>
-                        <button onClick={() => setQuantity(item.id, item.quantity + 1)} className="p-1.5 hover:bg-stone-100" aria-label="Increase"><Plus className="h-3.5 w-3.5" /></button>
+                      <div className="flex items-center rounded-md border border-stone-200 text-stone-900">
+                        <button onClick={() => setQuantity(item.id, item.quantity - 1)} className="p-1.5 text-stone-500 hover:bg-stone-100 hover:text-stone-900" aria-label="Decrease"><Minus className="h-3.5 w-3.5" /></button>
+                        <span className="w-7 text-center text-sm font-medium">{item.quantity}</span>
+                        <button onClick={() => setQuantity(item.id, item.quantity + 1)} className="p-1.5 text-stone-500 hover:bg-stone-100 hover:text-stone-900" aria-label="Increase"><Plus className="h-3.5 w-3.5" /></button>
                       </div>
                       <span className="text-sm font-semibold">{formatPrice(item.price * item.quantity, currency_symbol)}</span>
                     </div>

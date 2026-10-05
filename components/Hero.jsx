@@ -7,29 +7,33 @@ export default function Hero({ config }) {
       <div className="flex flex-col md:flex-row w-full h-[600px] border-b border-black/10">
         {/* Left Image */}
         <div className="hidden md:block md:w-1/3 relative">
-          <img src="https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=800" alt="Hero Left" className="w-full h-full object-cover" />
+          <img src="https://images.unsplash.com/photo-1506634572416-48cdfe530110?w=800" alt="Hero Left" className="w-full h-full object-cover object-top" />
         </div>
         {/* Middle Content */}
-        <div className="w-full md:w-1/3 bg-[#181818] text-white flex flex-col justify-center items-center text-center p-8 relative">
-          <h1 className="text-3xl lg:text-4xl font-serif font-bold tracking-tight leading-[1.2] mb-2">
-            Wear Your Heritage.
-          </h1>
-          <div className="text-3xl lg:text-4xl font-serif text-[#dcae44] font-medium mb-6">
-            Express Your Soul.
+        <div className="w-full md:w-1/3 relative flex flex-col justify-center items-center text-center p-8">
+          <div className="absolute inset-0 bg-black/60 z-10"></div>
+          <img src="https://images.unsplash.com/photo-1618354691373-d851c5c3a990?w=800" alt="Hero Middle Background" className="absolute inset-0 w-full h-full object-cover" />
+          <div className="relative z-20 flex flex-col items-center">
+            <h1 className="text-3xl lg:text-4xl font-serif font-bold tracking-tight leading-[1.2] mb-2 text-white">
+              Wear Your Heritage.
+            </h1>
+            <div className="text-3xl lg:text-4xl font-serif text-[#dcae44] font-medium mb-6">
+              Express Your Soul.
+            </div>
+            <p className="text-sm leading-relaxed text-white/80 max-w-sm mx-auto font-light mb-8">
+              Discover premium apparel, meticulously crafted to honor cultural traditions and celebrate modern identity. Organic fabrics, meaningful designs.
+            </p>
+            <a 
+              href="#products" 
+              className="group inline-flex items-center justify-center gap-2 rounded-sm bg-[#dcae44] px-8 py-3 text-xs font-bold uppercase tracking-widest text-black transition hover:bg-[#c99d36]"
+            >
+              Explore the Collection <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
+            </a>
           </div>
-          <p className="text-sm leading-relaxed text-white/50 max-w-sm mx-auto font-light mb-8">
-            Discover premium apparel, meticulously crafted to honor cultural traditions and celebrate modern identity. Organic fabrics, meaningful designs.
-          </p>
-          <a 
-            href="#products" 
-            className="group inline-flex items-center justify-center gap-2 rounded-sm bg-[#dcae44] px-8 py-3 text-xs font-bold uppercase tracking-widest text-black transition hover:bg-[#c99d36]"
-          >
-            Explore the Collection <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
-          </a>
         </div>
         {/* Right Image */}
         <div className="hidden md:block md:w-1/3 relative bg-stone-200">
-          <img src="https://images.unsplash.com/photo-1618354691373-d851c5c3a990?w=800" alt="Hero Right" className="w-full h-full object-cover" />
+          <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=800" alt="Hero Right" className="w-full h-full object-cover object-top" />
         </div>
       </div>
 

@@ -40,11 +40,11 @@ export default function CheckoutForm({ subtotal, deliveryFee }) {
       clear()
       close()
       
-      const phone = order.whatsapp_number ? String(order.whatsapp_number).replace(/\\D/g, '') : ''
+      const phone = order.whatsapp_number ? String(order.whatsapp_number).replace(/\D/g, '') : ''
       if (phone) {
-        const itemsText = order.items.map(item => `${item.title} (x${item.quantity}) - ${fmt(item.price * item.quantity)}`).join('\\n')
+        const itemsText = order.items.map(item => `${item.title} (x${item.quantity}) - ${fmt(item.price * item.quantity)}`).join('\n')
         const totalText = fmt(order.total_amount)
-        const text = `*New Order: ${order.id}*\\n\\n*Customer:* ${form.name}\\n*Phone:* ${form.phone}\\n*Address:* ${form.address}\\n\\n*Items:*\\n${itemsText}\\n\\n*Total:* ${totalText}`
+        const text = `*New Order: ${order.id}*\n\n*Customer:* ${form.name}\n*Phone:* ${form.phone}\n*Address:* ${form.address}\n\n*Items:*\n${itemsText}\n\n*Total:* ${totalText}`
         window.open(`https://wa.me/${phone}?text=${encodeURIComponent(text)}`, '_blank')
       }
 

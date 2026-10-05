@@ -1,7 +1,7 @@
 'use client'
 import Link from 'next/link'
 import { useEffect, useState } from 'react'
-import { ShoppingCart } from 'lucide-react'
+import { ShoppingBag } from 'lucide-react'
 import { useCart } from '@/lib/cart-store'
 import { useStoreConfig } from './ConfigProvider'
 
@@ -34,7 +34,7 @@ export default function Header() {
 
 
         <button onClick={open} className="relative rounded-full p-2 text-black hover:text-[#d4af37] transition-colors" aria-label={`Open cart (${count} items)`}>
-          <ShoppingCart className="h-5 w-5" />
+          <ShoppingBag className="h-5 w-5" />
           {hydrated && count > 0 && (
             <span className="absolute -right-1 -top-1 flex h-5 min-w-5 items-center justify-center rounded-full bg-[#d4af37] px-1 text-xs font-bold text-black">
               {count}
