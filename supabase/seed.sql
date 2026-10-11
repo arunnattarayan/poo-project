@@ -6,7 +6,7 @@
 insert into public.store_config (key, value) values
   ('store_name',      'Nanjai Clothing'),
   ('store_tagline',   'Tamil Heritage & Spiritual Printed Apparel'),
-  ('whatsapp_number', '919876543210'),
+  ('whatsapp_number', '918903273762'),
   ('currency_symbol', '₹'),
   ('delivery_fee',    '50')
 on conflict (key) do update set value = excluded.value;
@@ -164,3 +164,97 @@ insert into auth.identities (
 
 -- Add Admin user to public.admins table so they are recognized as an admin by the application
 insert into public.admins (user_id) values ('00000000-0000-0000-0000-000000000001') on conflict (user_id) do nothing;
+
+-- =============================================================================
+-- Production Seed: Homepage Hero Promotional Slideshow
+-- =============================================================================
+
+insert into public.homepage_hero_slides (
+  id,
+  title,
+  subtitle,
+  image_url,
+  image_path,
+  mobile_image_url,
+  mobile_image_path,
+  image_alt,
+  offer_badge,
+  button_text,
+  button_url,
+  text_alignment,
+  text_position,
+  overlay_opacity,
+  display_order,
+  status
+) values
+  (
+    '00000000-0000-0000-0000-000000000201',
+    'Wear Your Heritage.' || E'\n' || 'Express Your Soul.',
+    'Discover premium combed cotton apparel meticulously crafted to honor Tamil classical traditions and celebrate contemporary streetwear identity.',
+    'https://images.unsplash.com/photo-1618354691373-d851c5c3a990?q=80&w=2400&auto=format&fit=crop',
+    'slides/seed-hero-1.webp',
+    'https://images.unsplash.com/photo-1618354691373-d851c5c3a990?q=80&w=1080&auto=format&fit=crop',
+    'slides/seed-hero-1-mobile.webp',
+    'Models wearing contemporary cultural apparel inspired by Tamil heritage',
+    'NEW COLLECTION',
+    'Explore Collection',
+    '/#products',
+    'center',
+    'middle',
+    40,
+    0,
+    'published'
+  ),
+  (
+    '00000000-0000-0000-0000-000000000202',
+    'The Sacred Vibration.' || E'\n' || 'Cosmic Spiritual Series.',
+    'Heavyweight bio-washed tees featuring Shiva Trishul, Mahadev Tandav, and sacred geometry prints designed for everyday reflection.',
+    'https://images.unsplash.com/photo-1576566588028-4147f3842f27?q=80&w=2400&auto=format&fit=crop',
+    'slides/seed-hero-2.webp',
+    'https://images.unsplash.com/photo-1576566588028-4147f3842f27?q=80&w=1080&auto=format&fit=crop',
+    'slides/seed-hero-2-mobile.webp',
+    'Spiritual graphic streetwear apparel with sacred Sanskrit and Tamil artwork',
+    'FESTIVAL SPECIAL',
+    'Shop Spiritual Wear',
+    '/#products',
+    'center',
+    'middle',
+    45,
+    1,
+    'published'
+  ),
+  (
+    '00000000-0000-0000-0000-000000000203',
+    'Yaadhum Oore Yavarum Kelir.' || E'\n' || 'Sangam Poetry Edition.',
+    'Celebrating 2000+ years of timeless wisdom. 100% organic, pre-shrunk combed cotton with high-definition typography prints.',
+    'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?q=80&w=2400&auto=format&fit=crop',
+    'slides/seed-hero-3.webp',
+    'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?q=80&w=1080&auto=format&fit=crop',
+    'slides/seed-hero-3-mobile.webp',
+    'Editorial apparel showcase featuring typography tees from the Sangam literature line',
+    'LIMITED EDITION',
+    'View Edition',
+    '/#products',
+    'center',
+    'middle',
+    35,
+    2,
+    'published'
+  )
+on conflict (id) do update set
+  title = excluded.title,
+  subtitle = excluded.subtitle,
+  image_url = excluded.image_url,
+  image_path = excluded.image_path,
+  mobile_image_url = excluded.mobile_image_url,
+  mobile_image_path = excluded.mobile_image_path,
+  image_alt = excluded.image_alt,
+  offer_badge = excluded.offer_badge,
+  button_text = excluded.button_text,
+  button_url = excluded.button_url,
+  text_alignment = excluded.text_alignment,
+  text_position = excluded.text_position,
+  overlay_opacity = excluded.overlay_opacity,
+  display_order = excluded.display_order,
+  status = excluded.status;
+

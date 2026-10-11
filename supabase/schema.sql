@@ -55,7 +55,7 @@ create table if not exists public.admins (
 insert into public.store_config (key, value) values
   ('store_name',      'Nanjai Clothing'),
   ('store_tagline',   'Tamil & spiritual printed T-shirts'),
-  ('whatsapp_number', '919876543210'),
+  ('whatsapp_number', '918903273762'),
   ('currency_symbol', '₹'),
   ('delivery_fee',    '50')
 on conflict (key) do nothing;

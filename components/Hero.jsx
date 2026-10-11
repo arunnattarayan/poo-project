@@ -1,70 +1,74 @@
-import Link from 'next/link'
-import { ArrowRight, Grid3X3, Leaf, Globe, Heart } from 'lucide-react'
+import { ArrowRight, Grid3X3, Leaf, Globe } from 'lucide-react'
+import HeroSlideshow from './HeroSlideshow'
 
-export default function Hero({ config }) {
+function StaticBanner() {
   return (
-    <div className="bg-[#f9f8f4] text-black border-b border-black/10">
-      <div className="flex flex-col md:flex-row w-full h-[600px] border-b border-black/10">
-        {/* Left Image */}
-        <div className="hidden md:block md:w-1/3 relative">
-          <img src="https://images.unsplash.com/photo-1506634572416-48cdfe530110?w=800" alt="Hero Left" className="w-full h-full object-cover object-top" />
-        </div>
-        {/* Middle Content */}
-        <div className="w-full md:w-1/3 relative flex flex-col justify-center items-center text-center p-8">
-          <div className="absolute inset-0 bg-black/60 z-10"></div>
-          <img src="https://images.unsplash.com/photo-1618354691373-d851c5c3a990?w=800" alt="Hero Middle Background" className="absolute inset-0 w-full h-full object-cover" />
-          <div className="relative z-20 flex flex-col items-center">
-            <h1 className="text-3xl lg:text-4xl font-serif font-bold tracking-tight leading-[1.2] mb-2 text-white">
-              Wear Your Heritage.
-            </h1>
-            <div className="text-3xl lg:text-4xl font-serif text-[#dcae44] font-medium mb-6">
-              Express Your Soul.
-            </div>
-            <p className="text-sm leading-relaxed text-white/80 max-w-sm mx-auto font-light mb-8">
-              Discover premium apparel, meticulously crafted to honor cultural traditions and celebrate modern identity. Organic fabrics, meaningful designs.
-            </p>
-            <a 
-              href="#products" 
-              className="group inline-flex items-center justify-center gap-2 rounded-sm bg-[#dcae44] px-8 py-3 text-xs font-bold uppercase tracking-widest text-black transition hover:bg-[#c99d36]"
-            >
-              Explore the Collection <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
-            </a>
-          </div>
-        </div>
-        {/* Right Image */}
-        <div className="hidden md:block md:w-1/3 relative bg-stone-200">
-          <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=800" alt="Hero Right" className="w-full h-full object-cover object-top" />
-        </div>
+    <div className="relative w-full h-[600px] md:h-[700px] border-b border-black/10">
+      <div className="absolute inset-0 bg-stone-900/40 z-10"></div>
+      <img
+        src="https://images.unsplash.com/photo-1618354691373-d851c5c3a990?q=80&w=2000"
+        alt="Models wearing cultural apparel"
+        className="absolute inset-0 w-full h-full object-cover object-top"
+      />
+      <div className="relative z-20 flex flex-col justify-center items-center text-center h-full px-4">
+        <h1 className="text-4xl md:text-5xl lg:text-6xl font-serif font-bold tracking-tight leading-[1.2] mb-4 text-white max-w-3xl drop-shadow-md">
+          Wear Your Heritage.<br />
+          <span className="text-stone-200">Express Your Soul.</span>
+        </h1>
+        <p className="text-sm md:text-base leading-relaxed text-stone-100 max-w-xl mx-auto font-light mb-8 drop-shadow">
+          Discover premium apparel, meticulously crafted to honor cultural traditions and celebrate modern identity. Organic fabrics, meaningful designs.
+        </p>
+        <a
+          href="#products"
+          className="group inline-flex items-center justify-center gap-2 rounded bg-white px-8 py-3.5 text-xs font-bold uppercase tracking-widest text-stone-900 transition hover:bg-stone-100 shadow-lg"
+        >
+          Explore the Collection <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
+        </a>
       </div>
+    </div>
+  )
+}
 
-      {/* Feature Highlights */}
+export default function Hero({ config, slides = [] }) {
+  const hasSlides = Array.isArray(slides) && slides.length > 0
+
+  return (
+    <div className="bg-[#f9f8f4] text-black">
+      {/* Dynamic Slideshow or Fallback Static Banner */}
+      {hasSlides ? (
+        <HeroSlideshow slides={slides} fallback={<StaticBanner />} />
+      ) : (
+        <StaticBanner />
+      )}
+
+      {/* Trust Bar */}
       <div className="py-16">
-        <div className="mx-auto max-w-5xl grid grid-cols-1 sm:grid-cols-3 gap-6 px-4">
-          <div className="flex flex-col items-center gap-4 bg-[#fdfbf6] border border-[#d4af37]/30 p-8 rounded-md text-center shadow-sm">
-            <div className="flex h-12 w-12 items-center justify-center text-[#d4af37]">
-              <Grid3X3 className="h-10 w-10" strokeWidth={1} />
+        <div className="mx-auto max-w-5xl grid grid-cols-1 sm:grid-cols-3 gap-12 px-4">
+          <div className="flex flex-col items-center gap-5 text-center">
+            <div className="flex text-stone-800">
+              <Grid3X3 className="h-12 w-12" strokeWidth={1} />
             </div>
             <div>
-              <h3 className="text-xs font-bold tracking-widest text-black uppercase mb-2">HERITAGE CRAFT</h3>
-              <p className="text-xs text-black/60 leading-relaxed max-w-[200px] mx-auto">Traditional weaving met with modern cuts.</p>
+              <h3 className="text-xs font-bold tracking-widest text-stone-900 uppercase mb-2">HERITAGE CRAFT</h3>
+              <p className="text-sm text-stone-600 leading-relaxed max-w-[250px] mx-auto">Traditional weaving met with modern cuts.</p>
             </div>
           </div>
-          <div className="flex flex-col items-center gap-4 bg-[#fdfbf6] border border-[#d4af37]/30 p-8 rounded-md text-center shadow-sm">
-            <div className="flex h-12 w-12 items-center justify-center text-[#d4af37]">
-              <Leaf className="h-10 w-10" strokeWidth={1} />
+          <div className="flex flex-col items-center gap-5 text-center">
+            <div className="flex text-stone-800">
+              <Leaf className="h-12 w-12" strokeWidth={1} />
             </div>
             <div>
-              <h3 className="text-xs font-bold tracking-widest text-black uppercase mb-2">ETHICAL & SUSTAINABLE</h3>
-              <p className="text-xs text-black/60 leading-relaxed max-w-[200px] mx-auto">Organic, certified materials.</p>
+              <h3 className="text-xs font-bold tracking-widest text-stone-900 uppercase mb-2">ETHICAL & SUSTAINABLE</h3>
+              <p className="text-sm text-stone-600 leading-relaxed max-w-[250px] mx-auto">Organic, certified materials.</p>
             </div>
           </div>
-          <div className="flex flex-col items-center gap-4 bg-[#fdfbf6] border border-[#d4af37]/30 p-8 rounded-md text-center shadow-sm">
-            <div className="flex h-12 w-12 items-center justify-center text-[#d4af37]">
-              <Globe className="h-10 w-10" strokeWidth={1} />
+          <div className="flex flex-col items-center gap-5 text-center">
+            <div className="flex text-stone-800">
+              <Globe className="h-12 w-12" strokeWidth={1} />
             </div>
             <div>
-              <h3 className="text-xs font-bold tracking-widest text-black uppercase mb-2">GLOBAL COMMUNITY</h3>
-              <p className="text-xs text-black/60 leading-relaxed max-w-[200px] mx-auto">Supporting artisan communities.</p>
+              <h3 className="text-xs font-bold tracking-widest text-stone-900 uppercase mb-2">GLOBAL COMMUNITY</h3>
+              <p className="text-sm text-stone-600 leading-relaxed max-w-[250px] mx-auto">Supporting artisan communities.</p>
             </div>
           </div>
         </div>

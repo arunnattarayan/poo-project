@@ -8,6 +8,31 @@ import Hero from '@/components/Hero'
 import ProductFilters from '@/components/ProductFilters'
 import Pagination from '@/components/Pagination'
 
+/**
+ * Eligible hero slides. Uses the cookie-less anon client so a logged-in admin's
+ * session can never surface drafts, and filters explicitly (RLS is the backstop).
+ * Never throws — on any failure the static banner is shown.
+ */
+async function getHeroSlides() {
+  try {
+    const now = new Date().toISOString()
+    const { data, error } = await supabasePublic
+      .from('homepage_hero_slides')
+      .select('id, title, subtitle, image_url, mobile_image_url, image_alt, offer_badge, button_text, button_url, text_alignment, text_position, overlay_opacity')
+      .eq('status', 'published')
+      .or(`starts_at.is.null,starts_at.lte.${now}`)
+      .or(`ends_at.is.null,ends_at.gt.${now}`)
+      .not('image_url', 'is', null)
+      .order('display_order', { ascending: true })
+      .limit(10)
+    if (error) throw error
+    return data ?? []
+  } catch (err) {
+    console.error('[hero] failed to load slides:', err?.message || err)
+    return []
+  }
+}
+
 export async function generateMetadata() {
   const config = await getStoreConfig()
   return {
@@ -68,16 +93,17 @@ export default async function HomePage(props) {
 
   query = query.range(from, to);
 
-  const [config, { data: products, count, error }] = await Promise.all([
+  const [config, { data: products, count, error }, heroSlides] = await Promise.all([
     getStoreConfig(),
     query,
+    getHeroSlides(),
   ]);
 
   const totalPages = count ? Math.ceil(count / limit) : 0;
 
   return (
     <>
-      <Hero config={config} />
+      <Hero config={config} slides={heroSlides || []} />
       
       <div id="products" className="mx-auto max-w-6xl px-4 py-16 sm:py-24">
         <div className="mb-8 flex flex-col items-center text-center">
@@ -114,27 +140,28 @@ export default async function HomePage(props) {
         )}
       </div>
 
-      <div className="bg-[#f9f8f4] text-black py-24 border-t border-black/10">
-        <div className="mx-auto max-w-6xl px-4 text-center">
-          <h2 className="text-2xl md:text-3xl font-serif font-bold tracking-widest text-black uppercase mb-16">
-            THE HERITAGE SERIES
-          </h2>
-          <div className="grid grid-cols-1 md:grid-cols-5 gap-6">
-            <div className="grid grid-cols-2 gap-2">
-              <img src="https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=400" alt="Heritage 1" className="w-full h-full object-cover opacity-90 hover:opacity-100 transition-opacity" />
-              <img src="https://images.unsplash.com/photo-1506634572416-48cdfe530110?w=400" alt="Heritage 2" className="w-full h-full object-cover opacity-90 hover:opacity-100 transition-opacity" />
+      <div className="bg-white py-24 border-t border-stone-200">
+        <div className="mx-auto max-w-6xl px-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
+            <div className="relative aspect-[4/5] md:aspect-auto md:h-[600px] w-full overflow-hidden rounded-md">
+              <img 
+                src="https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?q=80&w=1200" 
+                alt="The Heritage Series Lifestyle" 
+                className="w-full h-full object-cover object-center"
+              />
             </div>
-            <div className="flex flex-col text-left justify-center">
-              <p className="text-[11px] text-black/70 leading-relaxed">The culture and inspire the cattains of them mature wite ihans cultorn colonias and orleones with convertiseat recsilleftons and constultitess volitions and consensitonate values of the cultures.</p>
-            </div>
-            <div className="flex flex-col text-left">
-              <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=800" alt="Heritage 3" className="w-full h-full object-cover opacity-90 hover:opacity-100 transition-opacity" />
-            </div>
-            <div className="flex flex-col text-left justify-center">
-              <p className="text-[11px] text-black/70 leading-relaxed">The colonias abened the converstis put onfime fmr artisans ofti them the nubiliy of conversteat recsilleftons consense, contertane theire communitas, values and cultures consitate centato and curitities.</p>
-            </div>
-            <div className="flex flex-col text-left justify-center">
-              <p className="text-[11px] text-black/70 leading-relaxed">Deliivver traterin premium designer ctirolinottenss and mediuro dcolers wite and meethecka voninan the artizan wedkmasurimeo. Orgaoie ficons communities deagits.</p>
+            
+            <div className="flex flex-col text-left justify-center md:pl-8">
+              <span className="text-xs tracking-widest uppercase text-amber-700 mb-4 block">Exclusive Collection</span>
+              <h2 className="font-serif text-3xl md:text-4xl text-stone-900 mb-6 leading-tight">
+                The Heritage Series
+              </h2>
+              <p className="text-stone-600 leading-relaxed mb-6">
+                Rooted in centuries of artisan tradition, this collection bridges classic weaving techniques with contemporary streetwear aesthetics. Each motif tells a story of cultural legacy, brought to life through organic fabrics and meticulous craftsmanship.
+              </p>
+              <a href="#products" className="inline-flex items-center text-sm font-bold tracking-widest uppercase text-stone-900 hover:text-amber-700 transition-colors group w-fit">
+                Explore the Series &rarr;
+              </a>
             </div>
           </div>
         </div>

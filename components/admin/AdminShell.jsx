@@ -2,12 +2,13 @@
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
 import { useState } from 'react'
-import { LayoutDashboard, Package, Settings, Store, LogOut, Menu, X, Share2 } from 'lucide-react'
+import { LayoutDashboard, Package, Settings, Store, LogOut, Menu, X, Share2, Image as ImageIcon } from 'lucide-react'
 import { createClient } from '@/lib/supabase'
 
 const NAV = [
   { href: '/admin', label: 'Orders', icon: LayoutDashboard },
   { href: '/admin/products', label: 'Products', icon: Package },
+  { href: '/admin/hero', label: 'Hero Slideshow', icon: ImageIcon },
   { href: '/admin/settings', label: 'Settings', icon: Settings },
   { href: '/admin/social', label: 'Social Media', icon: Share2 },
 ]
