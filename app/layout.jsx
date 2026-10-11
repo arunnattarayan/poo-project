@@ -22,6 +22,13 @@ export async function generateMetadata() {
     title: { default: config.store_name, template: `%s | ${config.store_name}` },
     description: config.store_tagline,
     metadataBase: new URL(SITE_URL),
+    icons: {
+      icon: [
+        { url: '/favicon.ico', sizes: 'any' },
+        { url: '/icon.png', type: 'image/png' },
+      ],
+      apple: '/apple-icon.png',
+    },
   }
 }
 
